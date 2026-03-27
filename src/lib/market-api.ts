@@ -14,6 +14,13 @@ const MOCK_PRODUCTS: Record<string, { name: string; brand: string; category: str
   "8901063092105": { name: "Amul Butter 500g", brand: "Amul", category: "Dairy", basePrice: 270 },
   "8906002370535": { name: "Himalaya Face Wash", brand: "Himalaya", category: "Personal Care", basePrice: 175 },
   "5000159484657": { name: "Dove Soap 100g", brand: "Dove", category: "Personal Care", basePrice: 55 },
+  "8901030865558": { name: "Tata Salt", brand: "Tata", category: "Grocery", basePrice: 28 }, // Added as per MOCK_PRODUCTS to ensure it's here
+  "8901058851427": { name: "Maggi Noodles", brand: "Nestle", category: "Grocery", basePrice: 14 },
+  "8901491101831": { name: "Lays Classic", brand: "Lays", category: "Snacks", basePrice: 20 },
+  "8901030865558": { name: "Tata Salt", brand: "Tata", category: "Grocery", basePrice: 28 },
+  "8901725131221": { name: "Colgate Strong Teeth", brand: "Colgate", category: "Personal Care", basePrice: 110 },
+  "8901030360442": { name: "Pepsodent G", brand: "Pepsodent", category: "Personal Care", basePrice: 95 },
+  "8901030653025": { name: "Lifebuoy Total", brand: "Lifebuoy", category: "Personal Care", basePrice: 35 },
 };
 
 function generatePriceHistory(basePrice: number, months: number = 12): { price: number; date: string; retailer: string }[] {
