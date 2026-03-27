@@ -2,10 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Product, PriceHistory } from "@/types/database";
 
 const MOCK_RETAILERS = [
-  { name: "Amazon", baseMultiplier: 1.0 },
-  { name: "Flipkart", baseMultiplier: 0.95 },
-  { name: "BigBasket", baseMultiplier: 1.05 },
-  { name: "JioMart", baseMultiplier: 0.98 },
+  { name: "Amazon", baseMultiplier: 1.0, searchUrl: "https://www.amazon.in/s?k=[PRODUCT_NAME]" },
+  { name: "Flipkart", baseMultiplier: 0.95, searchUrl: "https://www.flipkart.com/search?q=[PRODUCT_NAME]" },
+  { name: "BigBasket", baseMultiplier: 1.05, searchUrl: "https://www.bigbasket.com/ps/?q=[PRODUCT_NAME]" },
+  { name: "JioMart", baseMultiplier: 0.98, searchUrl: "https://www.jiomart.com/search/[PRODUCT_NAME]" },
 ];
 
 const MOCK_PRODUCTS: Record<string, { name: string; brand: string; category: string; basePrice: number }> = {
@@ -23,8 +23,8 @@ const MOCK_PRODUCTS: Record<string, { name: string; brand: string; category: str
   "8901030653025": { name: "Lifebuoy Total", brand: "Lifebuoy", category: "Personal Care", basePrice: 35 },
 };
 
-function generatePriceHistory(basePrice: number, months: number = 12): { price: number; date: string; retailer: string }[] {
-  const history: { price: number; date: string; retailer: string }[] = [];
+function generatePriceHistory(productName: string, basePrice: number, months: number = 12): { price: number; date: string; retailer: string; source_url: string }[] {
+  const history: { price: number; date: string; retailer: string; source_url: string }[] = [];
   const now = new Date();
 
   for (let i = months; i >= 0; i--) {
@@ -36,7 +36,11 @@ function generatePriceHistory(basePrice: number, months: number = 12): { price: 
       const variance = (Math.random() - 0.5) * 0.15;
       const seasonalFactor = 1 + Math.sin((i / 12) * Math.PI * 2) * 0.05;
       const price = Math.round(basePrice * retailer.baseMultiplier * seasonalFactor * (1 + variance) * 100) / 100;
-      history.push({ price, date: dateStr, retailer: retailer.name });
+      
+      // Generate a realistic search URL
+      const searchUrl = retailer.searchUrl.replace("[PRODUCT_NAME]", encodeURIComponent(productName));
+
+      history.push({ price, date: dateStr, retailer: retailer.name, source_url: searchUrl });
     }
   }
   return history;
@@ -67,12 +71,13 @@ export async function lookupProduct(upcCode: string): Promise<Product | null> {
 
   if (error || !newProduct) return null;
 
-  const history = generatePriceHistory(mockData.basePrice);
+  const history = generatePriceHistory(mockData.name, mockData.basePrice);
   const priceRows = history.map((h) => ({
     product_id: newProduct.id,
     price: h.price,
     retailer_name: h.retailer,
     recorded_at: h.date,
+    source_url: h.source_url,
   }));
 
   await (supabase as any).from("price_history").insert(priceRows);

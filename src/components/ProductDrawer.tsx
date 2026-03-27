@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { TrendingDown, TrendingUp, ShoppingCart, Target, X } from "lucide-react";
+import { TrendingDown, TrendingUp, ShoppingCart, Target, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { fetchPriceHistory, fetchLatestPrices, applyBankDiscount } from "@/lib/market-api";
@@ -185,14 +185,28 @@ const ProductDrawer = ({ product, open, onClose }: ProductDrawerProps) => {
                             </p>
                           )}
                         </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={() => handleAddToCart(p.retailer, bankDeal?.truePrice || p.price)}
-                        >
-                          <ShoppingCart className="w-3 h-3" />
-                        </Button>
+                        <div className="flex gap-1">
+                          {p.source_url && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                              onClick={() => window.open(p.source_url || '', '_blank')}
+                              title={`Buy on ${p.retailer}`}
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() => handleAddToCart(p.retailer, bankDeal?.truePrice || p.price)}
+                            title="Add to Cart"
+                          >
+                            <ShoppingCart className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                     </motion.div>
                   );
