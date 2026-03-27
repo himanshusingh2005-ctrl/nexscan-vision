@@ -88,26 +88,37 @@ export async function lookupProduct(upcCode: string): Promise<Product | null> {
 export async function fetchPriceHistory(productId: string): Promise<PriceHistory[]> {
   const { data } = await (supabase as any)
     .from("price_history")
-    .select("*")
+    .select("*, product:product_id(name)")
     .eq("product_id", productId)
     .order("recorded_at", { ascending: true });
 
-  return (data as PriceHistory[]) || [];
+  if (!data) return [];
+
+  return (data as any[]).map(row => ({
+    ...row,
+    source_url: row.source_url || 
+      MOCK_RETAILERS.find(r => r.name === row.retailer_name)?.searchUrl.replace("[PRODUCT_NAME]", encodeURIComponent(row.product?.name || ""))
+  })) as PriceHistory[];
 }
 
 export async function fetchLatestPrices(productId: string): Promise<{ retailer: string; price: number; source_url: string | null }[]> {
   const { data } = await (supabase as any)
     .from("price_history")
-    .select("*")
+    .select("*, product:product_id(name)")
     .eq("product_id", productId)
     .order("recorded_at", { ascending: false });
 
   if (!data) return [];
 
   const latest = new Map<string, { retailer: string; price: number; source_url: string | null }>();
-  for (const row of data as PriceHistory[]) {
+  for (const row of data as any[]) {
     if (!latest.has(row.retailer_name)) {
-      latest.set(row.retailer_name, { retailer: row.retailer_name, price: row.price, source_url: row.source_url });
+      const fallbackUrl = MOCK_RETAILERS.find(r => r.name === row.retailer_name)?.searchUrl.replace("[PRODUCT_NAME]", encodeURIComponent(row.product?.name || ""));
+      latest.set(row.retailer_name, { 
+        retailer: row.retailer_name, 
+        price: row.price, 
+        source_url: row.source_url || fallbackUrl || null 
+      });
     }
   }
   return Array.from(latest.values());
