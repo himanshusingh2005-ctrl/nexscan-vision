@@ -1,3 +1,3 @@
-# This project is basrd on shoping application 
-# It helps to prevent our over charges.
+# This project is based on shoping application 
+# It helps to prevent over charges.
 
