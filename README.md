@@ -1,3 +1,2 @@
-# Welcome to your Lovable project
+# This project is based on shoping application
 
-TODO: Document your project here
