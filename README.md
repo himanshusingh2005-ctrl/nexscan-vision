@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# This project is basrd on shoping application 
+# It helps to prevent our over charges.
 
-TODO: Document your project here
